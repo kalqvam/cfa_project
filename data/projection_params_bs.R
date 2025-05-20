@@ -130,11 +130,3 @@ balance_sheet_ratios <- list(
     period_4 = -0.024
   )
 )
-
-get_bs_rate <- function(rates_list, category, subcategory = NULL, period) {
-  if (is.null(subcategory)) {
-    return(rates_list[[category]][[period]])
-  } else {
-    return(rates_list[[category]][[subcategory]][[period]])
-  }
-}
