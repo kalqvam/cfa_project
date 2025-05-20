@@ -1,37 +1,5 @@
-library(dplyr)
-
-dcf_inputs <- list(
-  terminal_growth_rate = 0.025,
-  shares_outstanding = 55.27,
-  
-  risk_free_rate = 0.025,
-  market_risk_premium = 0.047,
-  country_risk_premium = 0,
-  unlevered_beta = 1.3,
-  credit_spread = 0.004,
-  
-  book_value_equity = 111.5,
-  interest_bearing_debt = 37.5,
-  tax_rate = 0.20
-)
-
-calculate_dcf_valuation <- function(income_statement, balance_sheet, dcf_inputs) {  
-  total_capital <- dcf_inputs$book_value_equity + dcf_inputs$interest_bearing_debt
-  weight_equity <- dcf_inputs$book_value_equity / total_capital
-  weight_debt <- dcf_inputs$interest_bearing_debt / total_capital
-  
-  de_ratio <- dcf_inputs$interest_bearing_debt / dcf_inputs$book_value_equity
-  leverage_factor <- 1 + (1 - dcf_inputs$tax_rate) * de_ratio
-  levered_beta <- dcf_inputs$unlevered_beta * leverage_factor
-  
-  cost_equity <- dcf_inputs$risk_free_rate + dcf_inputs$country_risk_premium + 
-    dcf_inputs$market_risk_premium * dcf_inputs$unlevered_beta
-  
-  cost_debt_pretax <- dcf_inputs$risk_free_rate + dcf_inputs$country_risk_premium + 
-    dcf_inputs$credit_spread
-  cost_debt_posttax <- 0.05 * (1 - dcf_inputs$tax_rate)
-  
-  wacc <- weight_equity * cost_equity + weight_debt * cost_debt_posttax
+calculate_dcf <- function(income_statement, balance_sheet, wacc_results, fixed_assets_params) {
+  wacc <- wacc_results$wacc
   
   projection_periods <- 2025:2030
   
@@ -47,16 +15,16 @@ calculate_dcf_valuation <- function(income_statement, balance_sheet, dcf_inputs)
     period <- df$Period[i]
     prev_period <- if(period == 2025) "2024_Q4" else as.character(period - 1)
     
-    current_ppe <- balance_sheet$PP_and_A_owned[balance_sheet$Period == period] +
+    current_ppe <- balance_sheet$PPE_owned[balance_sheet$Period == period] +
       balance_sheet$Intangible_assets[balance_sheet$Period == period]
     
-    prev_ppe <- balance_sheet$PP_and_A_owned[balance_sheet$Period == prev_period] +
+    prev_ppe <- balance_sheet$PPE_owned[balance_sheet$Period == prev_period] +
       balance_sheet$Intangible_assets[balance_sheet$Period == prev_period]
     
-    ppe_DA <- balance_sheet$PP_and_A_owned[balance_sheet$Period == prev_period] * 
-      (1 + fixed_assets_params$growth_rates$pp_and_a_owned[[1]]) * 
-      (fixed_assets_params$depreciation_rates$pp_and_a_owned[[1]]) +
-              balance_sheet$Intangible_assets[balance_sheet$Period == prev_period] * 
+    ppe_DA <- balance_sheet$PPE_owned[balance_sheet$Period == prev_period] * 
+      (1 + fixed_assets_params$growth_rates$ppe_owned[[1]]) * 
+      (fixed_assets_params$depreciation_rates$ppe_owned[[1]]) +
+      balance_sheet$Intangible_assets[balance_sheet$Period == prev_period] * 
       (1 + fixed_assets_params$growth_rates$intangible_assets[[1]]) * 
       (fixed_assets_params$depreciation_rates$intangible_assets[[1]])
     
@@ -83,10 +51,11 @@ calculate_dcf_valuation <- function(income_statement, balance_sheet, dcf_inputs)
     
     df$Change_in_NWC[i] <- -(current_nwc - prev_nwc)
   }
-  
+
   df$FCFF <- df$NOPAT + df$CapEx + df$Change_in_NWC
-  
+
   df$Discount_factor <- 1 / (1 + wacc)^(1:nrow(df))
+  
   df$Discounted_FCFF <- df$FCFF * df$Discount_factor
   
   terminal_fcff <- df$FCFF[nrow(df)] * (1 + dcf_inputs$terminal_growth_rate)
@@ -94,7 +63,7 @@ calculate_dcf_valuation <- function(income_statement, balance_sheet, dcf_inputs)
   discounted_terminal_value <- terminal_value * df$Discount_factor[nrow(df)]
   
   enterprise_value <- sum(df$Discounted_FCFF) + discounted_terminal_value
-
+  
   latest_cash <- balance_sheet$Cash_and_equivalents[balance_sheet$Period == "2024_Q3"]
   
   latest_interest_bearing_debt <- if ("Total_Interest_Bearing_Debt" %in% names(balance_sheet)) {
@@ -109,12 +78,10 @@ calculate_dcf_valuation <- function(income_statement, balance_sheet, dcf_inputs)
   
   equity_value <- enterprise_value - latest_interest_bearing_debt + latest_cash
   price_per_share <- equity_value / dcf_inputs$shares_outstanding
-  
+
   return(list(
     wacc = wacc,
-    cost_of_equity = cost_equity,
-    cost_of_debt = cost_debt_posttax,
-    levered_beta = levered_beta,
+    wacc_components = wacc_results,
     fcff_calculations = df,
     enterprise_value = enterprise_value,
     equity_value = equity_value,
@@ -123,9 +90,3 @@ calculate_dcf_valuation <- function(income_statement, balance_sheet, dcf_inputs)
     discounted_terminal_value = discounted_terminal_value
   ))
 }
-
-dcf_valuation <- calculate_dcf_valuation(
-  income_statement = income_statement,
-  balance_sheet = balance_sheet,
-  dcf_inputs = dcf_inputs
-)
