@@ -199,5 +199,5 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
 run_projections_default <- function() {
   return(calculate_proforma_projections(df_is, df_bs, revenue_growth_rates, expense_ratios,
                                            fixed_assets_params, working_capital_ratios,
-                                           balance_sheet_ratios, interest_rates, tax_rates)  
+                                           balance_sheet_ratios, interest_rates, tax_rates))
 }
