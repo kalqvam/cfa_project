@@ -5,7 +5,7 @@ dcf_inputs <- list(
   risk_free_rate = 0.025,
   market_risk_premium = 0.047,
   country_risk_premium = 0,
-  unlevered_beta = 1.3,
+  beta = 1.3,
   credit_spread = 0.004,
   
   book_value_equity = 111.5,
