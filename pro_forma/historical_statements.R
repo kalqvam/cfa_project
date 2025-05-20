@@ -1,6 +1,4 @@
-prepare_historical_dataframes <- function(historical_data = historical_data, 
-                                          historical_bs_data = historical_bs_data, 
-                                          tax_rates = tax_rates) {
+prepare_historical_dataframes <- function(historical_data, historical_bs_data, tax_rates) {
   
   historical_periods <- c("2021", "2022", "2023", paste0("2024_Q", 1:4))
   projection_periods <- as.character(2025:2030)
@@ -81,4 +79,8 @@ prepare_historical_dataframes <- function(historical_data = historical_data,
   }
   
   return(list(income_statement = df_is, balance_sheet = df_bs))
+}
+
+run_historical_preparation_defaults <- function() {
+  return(prepare_historical_dataframes(historical_data, historical_bs_data, tax_rates))
 }
