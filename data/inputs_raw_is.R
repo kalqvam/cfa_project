@@ -1,6 +1,4 @@
-# Historical data remains the same
 historical_data <- list(
-  # Revenue by region
   Nordics = list(
     "2021" = 23.1, "2022" = 57.8, "2023" = 114.1,
     "2024_Q1" = 15.9, "2024_Q2" = 29.2, "2024_Q3" = 26.7
@@ -18,7 +16,6 @@ historical_data <- list(
     "2024_Q1" = 2.8, "2024_Q2" = 3.0, "2024_Q3" = 2.0
   ),
   
-  # Historical expenses
   Materials_and_services = list(
     "2021" = 13.6, "2022" = 52.4, "2023" = 129.4,
     "2024_Q1" = 19.6, "2024_Q2" = 29.6, "2024_Q3" = 23.6
@@ -41,7 +38,6 @@ historical_data <- list(
   )
 )
 
-# Define period ranges for easier reference
 projection_periods <- list(
   period_1 = c("2024_Q4", "2025"),
   period_2 = as.character(2026:2028),
@@ -49,13 +45,12 @@ projection_periods <- list(
   period_4 = "terminal"
 )
 
-# Company adjustment factors by region
 revenue_growth_rates <- list(
   Nordics = list(
-    period_1 = 0.069,       # Company performs 50% better than industry in Nordics
+    period_1 = 0.069,
     period_2 = 0.0995,
     period_3 = 0.0059,
-    period_4 = 0.025        # No adjustment for terminal growth
+    period_4 = 0.025
   ),
   Rest_of_Europe = list(
     period_1 = 0.1792,
@@ -77,7 +72,6 @@ revenue_growth_rates <- list(
   )
 )
 
-# Function to print growth rates for verification
 print_growth_rates <- function(rates) {
   for (region in names(rates)) {
     cat("\n", region, ":\n")
@@ -87,45 +81,42 @@ print_growth_rates <- function(rates) {
   }
 }
 
-# Operating ratios by period
 expense_ratios <- list(
   materials_and_services = list(
-    period_1 = 0.499,      # 50.0% of revenue
-    period_2 = 0.495,      # 49.5% of revenue
-    period_3 = 0.491,      # 49.0% of revenue
-    period_4 = 0.488       # Terminal period
+    period_1 = 0.499,
+    period_2 = 0.495,
+    period_3 = 0.491,
+    period_4 = 0.488
   ),
   employee_benefits = list(
-    period_1 = 0.242,      # 24.2% of revenue
-    period_2 = 0.202,      # 24.0% of revenue
-    period_3 = 0.193,      # 23.8% of revenue
-    period_4 = 0.184       # Terminal period
+    period_1 = 0.242,
+    period_2 = 0.202,
+    period_3 = 0.193,
+    period_4 = 0.184
   ),
   other_operating_expenses = list(
-    period_1 = 0.212,      # 21.2% of revenue
-    period_2 = 0.199,      # 21.0% of revenue
-    period_3 = 0.1865,      # 20.8% of revenue
-    period_4 = 0.1745       # Terminal period
+    period_1 = 0.212,
+    period_2 = 0.199,
+    period_3 = 0.1865,
+    period_4 = 0.1745
   )
 )
 
-# Interest rates by period
 interest_rates <- list(
   debt_interest = list(
-    period_1 = 0.05,      # 4.5% interest rate on debt
+    period_1 = 0.05,
     period_2 = 0.05,
     period_3 = 0.05,
     period_4 = 0.05
   ),
   savings_interest = list(
-    period_1 = 0.025,      # 3.5% interest rate on cash
+    period_1 = 0.025, 
     period_2 = 0.025,
     period_3 = 0.025,
     period_4 = 0.025
   )
 )
 
-# Tax rate (kept constant across periods but structured for potential changes)
 tax_rates <- list(
   period_1 = 0.20,
   period_2 = 0.20,
@@ -133,7 +124,6 @@ tax_rates <- list(
   period_4 = 0.20
 )
 
-# Helper function to get the appropriate rate for a given period and metric
 get_rate <- function(rates_list, period, metric = NULL) {
   if (is.null(metric)) {
     return(rates_list[[period]])
@@ -142,7 +132,6 @@ get_rate <- function(rates_list, period, metric = NULL) {
   }
 }
 
-# Helper function to determine which period a given year belongs to
 get_period <- function(year) {
   if (year %in% c("2024_Q4", "2025")) return("period_1")
   if (year %in% as.character(2026:2028)) return("period_2")
