@@ -178,7 +178,7 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
       df_bs$Cash_and_equivalents[i]
   }
   
-  return(TRUE)
+  return(list(df_is = df_is, df_bs = df_bs))
 }
 
 results_projections <- calculate_proforma_projections(df_is, df_bs, revenue_growth_rates, expense_ratios,
