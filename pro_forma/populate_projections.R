@@ -1,4 +1,4 @@
-calculate_proforma_projections <- function(revenue_growth_rates, expense_ratios,
+calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, expense_ratios,
                                            fixed_assets_params, working_capital_ratios,
                                            balance_sheet_ratios, interest_rates, tax_rates) {
   
@@ -181,8 +181,6 @@ calculate_proforma_projections <- function(revenue_growth_rates, expense_ratios,
   return(TRUE)
 }
 
-run_projections_default <- function() {
-  return(calculate_proforma_projections(revenue_growth_rates, expense_ratios,
+results_projections <- calculate_proforma_projections(df_is, df_bs, revenue_growth_rates, expense_ratios,
                                         fixed_assets_params, working_capital_ratios,
-                                        balance_sheet_ratios, interest_rates, tax_rates))
-}
+                                        balance_sheet_ratios, interest_rates, tax_rates)
