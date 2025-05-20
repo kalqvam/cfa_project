@@ -1,4 +1,4 @@
-calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, expense_ratios,
+calculate_proforma_projections <- function(revenue_growth_rates, expense_ratios,
                                            fixed_assets_params, working_capital_ratios,
                                            balance_sheet_ratios, interest_rates, tax_rates) {
   
@@ -9,16 +9,14 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
     return(total_2024_revenue)
   }
   
-  projection_start <- which(df_is$Period == "2024_Q4")
+  projection_start_idx <- which(df_is$Period == projection_start)
   
-  revenue_regions <- c("Nordics", "Rest_of_Europe", "North_America", "Rest_of_World")
-  
-  for (i in projection_start:nrow(df_is)) {
+  for (i in projection_start_idx:nrow(df_is)) {
     current_period <- df_is$Period[i]
     period_name <- get_period(current_period)
     prev_period <- i - 1
     
-    if (current_period == "2024_Q4") {
+    if (current_period == projection_start) {
       for (region in revenue_regions) {
         q3_revenue <- df_is[[region]][i-1]  
         df_is[[region]][i] <- q3_revenue * (1 + revenue_growth_rates[[region]]$period_1)
@@ -40,7 +38,7 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
     
     df_is$Total_revenue[i] <- rowSums(df_is[i, revenue_regions])
 
-    if (current_period == "2024_Q4") {
+    if (current_period == projection_start) {
       revenue_base <- calculate_2024_revenue()
     } else {
       revenue_base <- df_is$Total_revenue[i]
@@ -73,7 +71,7 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
     df_bs$Other_non_current_liabilities[i] <- revenue_base * 
       working_capital_ratios$other_non_current_liab_to_revenue[[period_name]]
     
-    if (current_period == "2024_Q4") {
+    if (current_period == projection_start) {
       df_bs$Intangible_assets[i] <- df_bs$Intangible_assets[prev_period] * 
         (1 + fixed_assets_params$growth_rates$intangible_assets[[period_name]] / 4) * 
         (1 - fixed_assets_params$depreciation_rates$intangible_assets[[period_name]] / 4)
@@ -141,10 +139,7 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
 
     df_is$EBIT[i] <- df_is$EBITDA[i] - df_is$Depreciation_and_amortization[i]
 
-    df_bs$Total_Operating_Assets[i] <- sum(df_bs[i, c("Intangible_assets", "PP_and_A_owned", 
-                                                     "PP_and_A_ROU", "Inventories", 
-                                                     "Trade_receivables", "Other_current_assets",
-                                                     "Other_non_current_assets")])
+    df_bs$Total_Operating_Assets[i] <- sum(df_bs[i, bs_operating_asset_categories])
 
     df_bs$Reserve_for_invested_equity[i] <- df_bs$Reserve_for_invested_equity[1] 
     
@@ -161,9 +156,7 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
     df_bs$Non_current_provisions[i] <- df_bs$Inventories[i] * 
       balance_sheet_ratios$non_current_provisions_to_inventory[[period_name]]
 
-    df_bs$Total_Interest_Bearing_Debt[i] <- sum(df_bs[i, c("Short_term_loans", "Long_term_loans",
-                                                          "Lease_liabilities_current", 
-                                                          "Lease_liabilities_non_current")])
+    df_bs$Total_Interest_Bearing_Debt[i] <- sum(df_bs[i, bs_interest_bearing_debt_categories])
 
     df_is$Net_interest[i] <- df_bs$Cash_and_equivalents[prev_period] * 
       interest_rates$savings_interest[[period_name]] -
@@ -176,15 +169,7 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
     df_bs$Retained_earnings[i] <- df_bs$Retained_earnings[prev_period] + 
       df_is$Net_income[i]
 
-    df_bs$Total_Liabilities_Equity[i] <- sum(df_bs[i, c("Reserve_for_invested_equity", 
-                                                       "Retained_earnings", "Other_equity",
-                                                       "Short_term_loans", "Long_term_loans",
-                                                       "Lease_liabilities_current", 
-                                                       "Lease_liabilities_non_current",
-                                                       "Trade_payables", "Provisions",
-                                                       "Other_current_liabilities",
-                                                       "Other_non_current_liabilities",
-                                                       "Non_current_provisions")])
+    df_bs$Total_Liabilities_Equity[i] <- sum(df_bs[i, bs_liability_equity_categories])
 
     df_bs$Cash_and_equivalents[i] <- df_bs$Total_Liabilities_Equity[i] - 
       df_bs$Total_Operating_Assets[i]
@@ -193,11 +178,11 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
       df_bs$Cash_and_equivalents[i]
   }
   
-  return(list(income_statement = df_is, balance_sheet = df_bs))
+  return(TRUE)
 }
 
 run_projections_default <- function() {
-  return(calculate_proforma_projections(df_is, df_bs, revenue_growth_rates, expense_ratios,
-                                           fixed_assets_params, working_capital_ratios,
-                                           balance_sheet_ratios, interest_rates, tax_rates))
+  return(calculate_proforma_projections(revenue_growth_rates, expense_ratios,
+                                        fixed_assets_params, working_capital_ratios,
+                                        balance_sheet_ratios, interest_rates, tax_rates))
 }
