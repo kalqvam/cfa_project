@@ -1,6 +1,5 @@
-calculate_dcf <- function(income_statement, balance_sheet, dcf_inputs, fixed_assets_params) {
-  wacc_result <- calculate_wacc(dcf_inputs)
-  wacc <- wacc_result$wacc
+calculate_dcf <- function(income_statement, balance_sheet, wacc_results, fixed_assets_params) {
+  wacc <- wacc_results$wacc
   
   projection_periods <- 2025:2030
   
