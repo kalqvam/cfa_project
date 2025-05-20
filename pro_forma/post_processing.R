@@ -1,4 +1,4 @@
-format_financial_statements <- function() {
+format_financial_statements <- function(df_is, df_bs) {
   # Create copies of the global dataframes to preserve the originals
   formatted_is <- df_is
   formatted_bs <- df_bs
