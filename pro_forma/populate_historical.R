@@ -1,4 +1,4 @@
-prepare_historical_dataframes <- function(historical_data, historical_bs_data, tax_rates) {
+prepare_historical_dataframes <- function(df_is, df_bs, historical_data, historical_bs_data, tax_rates) {
   historical_end_idx <- which(df_is$Period == historical_end)
   
   for (region in revenue_regions) {
@@ -38,6 +38,4 @@ prepare_historical_dataframes <- function(historical_data, historical_bs_data, t
   return(TRUE)
 }
 
-run_historical_preparation_defaults <- function() {
-  return(prepare_historical_dataframes(historical_data, historical_bs_data, tax_rates))
-}
+result_historical <- prepare_historical_dataframes(df_is, df_bs, historical_data, historical_bs_data, tax_rates)
