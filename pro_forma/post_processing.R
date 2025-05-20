@@ -1,20 +1,14 @@
 format_financial_statements <- function(df_is, df_bs) {
-  # Create copies of the global dataframes to preserve the originals
   formatted_is <- df_is
   formatted_bs <- df_bs
   
-  # Reorder the income statement columns using the global revenue_regions variable
   formatted_is <- formatted_is[, c("Period",
-                    # Revenue sections
                     revenue_regions,
                     "Total_revenue",
-                    # Operating expenses
                     "Materials_and_services",
                     "Employee_benefits",
                     "Other_operating_expenses",
-                    # Profitability metrics
                     "EBITDA",
-                    # Non-operating items
                     "Depreciation_and_amortization",
                     "EBIT",
                     "Net_interest",
@@ -22,8 +16,6 @@ format_financial_statements <- function(df_is, df_bs) {
                     "Corporate_income_tax",
                     "Net_income")]
   
-  # Reorder the balance sheet columns using a combination of our global category variables
-  # Define the desired ordering of balance sheet items
   asset_columns <- c(bs_operating_asset_categories, "Cash_and_equivalents")
   liability_columns <- c("Short_term_loans", "Long_term_loans",
                        "Lease_liabilities_current", "Lease_liabilities_non_current",
