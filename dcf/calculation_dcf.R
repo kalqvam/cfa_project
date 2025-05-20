@@ -16,15 +16,15 @@ calculate_dcf <- function(income_statement, balance_sheet, dcf_inputs, fixed_ass
     period <- df$Period[i]
     prev_period <- if(period == 2025) "2024_Q4" else as.character(period - 1)
     
-    current_ppe <- balance_sheet$PP_and_A_owned[balance_sheet$Period == period] +
+    current_ppe <- balance_sheet$PPE_owned[balance_sheet$Period == period] +
       balance_sheet$Intangible_assets[balance_sheet$Period == period]
     
-    prev_ppe <- balance_sheet$PP_and_A_owned[balance_sheet$Period == prev_period] +
+    prev_ppe <- balance_sheet$PPE_owned[balance_sheet$Period == prev_period] +
       balance_sheet$Intangible_assets[balance_sheet$Period == prev_period]
     
-    ppe_DA <- balance_sheet$PP_and_A_owned[balance_sheet$Period == prev_period] * 
-      (1 + fixed_assets_params$growth_rates$pp_and_a_owned[[1]]) * 
-      (fixed_assets_params$depreciation_rates$pp_and_a_owned[[1]]) +
+    ppe_DA <- balance_sheet$PPE_owned[balance_sheet$Period == prev_period] * 
+      (1 + fixed_assets_params$growth_rates$ppe_owned[[1]]) * 
+      (fixed_assets_params$depreciation_rates$ppe_owned[[1]]) +
       balance_sheet$Intangible_assets[balance_sheet$Period == prev_period] * 
       (1 + fixed_assets_params$growth_rates$intangible_assets[[1]]) * 
       (fixed_assets_params$depreciation_rates$intangible_assets[[1]])
