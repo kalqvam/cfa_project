@@ -7,39 +7,30 @@ projection_periods <- list(
 
 revenue_growth_rates <- list(
   Nordics = list(
-    period_1 = 0.069,
+    period_1 = 0.0690,
     period_2 = 0.0995,
     period_3 = 0.0059,
-    period_4 = 0.025
+    period_4 = 0.0250
   ),
   Rest_of_Europe = list(
     period_1 = 0.1792,
     period_2 = 0.2033,
     period_3 = 0.1988,
-    period_4 = 0.025
+    period_4 = 0.0250
   ),
   North_America = list(
     period_1 = 0.6711,
     period_2 = 0.5708,
     period_3 = 0.2715,
-    period_4 = 0.025
+    period_4 = 0.0250
   ),
   Rest_of_World = list(
     period_1 = 0.4723,
     period_2 = 0.3246,
     period_3 = 0.1607,
-    period_4 = 0.025
+    period_4 = 0.0250
   )
 )
-
-print_growth_rates <- function(rates) {
-  for (region in names(rates)) {
-    cat("\n", region, ":\n")
-    for (period in names(rates[[region]])) {
-      cat(sprintf("%s: %.3f\n", period, rates[[region]][[period]]))
-    }
-  }
-}
 
 expense_ratios <- list(
   materials_and_services = list(
