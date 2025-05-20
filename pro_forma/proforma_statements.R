@@ -1,6 +1,12 @@
-calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, expense_ratios,
-                                         fixed_assets_params, working_capital_ratios,
-                                         balance_sheet_ratios, interest_rates, tax_rates) {
+calculate_proforma_projections <- function(df_is = df_is, 
+                                           df_bs = df_bs, 
+                                           revenue_growth_rates = revenue_growth_rates, 
+                                           expense_ratios = expense_ratios,
+                                           fixed_assets_params = fixed_assets_params, 
+                                           working_capital_ratios = working_capital_ratios,
+                                           balance_sheet_ratios = balance_sheet_ratios, 
+                                           interest_rates = interest_rates, 
+                                           tax_rates = tax_rates) {
   
   calculate_2024_revenue <- function() {
     q1_idx <- which(df_is$Period == "2024_Q1")
