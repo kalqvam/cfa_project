@@ -11,8 +11,8 @@ expense_categories <- c("Materials_and_services", "Employee_benefits",
                       "Other_operating_expenses", "Depreciation_and_amortization", 
                       "Net_interest")
 
-bs_operating_asset_categories <- c("Intangible_assets", "PP_and_A_owned", 
-                                "PP_and_A_ROU", "Inventories", 
+bs_operating_asset_categories <- c("Intangible_assets", "PPE_owned", 
+                                "PPE_ROU", "Inventories", 
                                 "Trade_receivables", "Other_current_assets",
                                 "Other_non_current_assets")
 
