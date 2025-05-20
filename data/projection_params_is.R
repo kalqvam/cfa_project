@@ -74,19 +74,3 @@ tax_rates <- list(
   period_3 = 0.20,
   period_4 = 0.20
 )
-
-get_rate <- function(rates_list, period, metric = NULL) {
-  if (is.null(metric)) {
-    return(rates_list[[period]])
-  } else {
-    return(rates_list[[metric]][[period]])
-  }
-}
-
-get_period <- function(year) {
-  if (year %in% c("2024_Q4", "2025")) return("period_1")
-  if (year %in% as.character(2026:2028)) return("period_2")
-  if (year %in% as.character(2029:2030)) return("period_3")
-  if (year == "terminal") return("period_4")
-  stop(paste("Invalid year:", year))
-}
