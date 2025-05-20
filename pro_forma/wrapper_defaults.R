@@ -1,4 +1,4 @@
-run_complete_financial_model <- function() {
+run_complete_financial_model <- function(df_is, df_bs) {
   populated_historical <- prepare_historical_dataframes(df_is, df_bs, historical_data, historical_bs_data, tax_rates)
   
   df_is <- populated_historical$df_is
@@ -11,7 +11,7 @@ run_complete_financial_model <- function() {
   df_is <- populated_projections$df_is
   df_bs <- populated_projections$df_bs
   
-  formatted_statements <- format_financial_statements()
+  formatted_statements <- format_financial_statements(df_is, df_bs)
 
   return(list(income_statement = formatted_statements$income_statement, 
          balance_sheet = formatted_statements$balance_sheet))
