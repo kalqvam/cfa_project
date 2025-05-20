@@ -6,13 +6,13 @@ fixed_assets_params <- list(
       period_3 = 0.6761,
       period_4 = 0.025
     ),
-    pp_and_a_owned = list(
+    ppe_owned = list(
       period_1 = 0.3018,
       period_2 = 0.3832,
       period_3 = 0.1933,
       period_4 = 0.500
     ),
-    pp_and_a_rou = list(
+    ppe_rou = list(
       period_1 = 0.4336,
       period_2 = 0.4336,
       period_3 = 0.4336,
@@ -27,13 +27,13 @@ fixed_assets_params <- list(
       period_3 = 0.2244,
       period_4 = 0.2244
     ),
-    pp_and_a_owned = list(
+    ppe_owned = list(
       period_1 = 0.0782,
       period_2 = 0.0782,
       period_3 = 0.0782,
       period_4 = 0.0782
     ),
-    pp_and_a_rou = list(
+    ppe_rou = list(
       period_1 = 0.2327,
       period_2 = 0.2327,
       period_3 = 0.2327,
@@ -104,10 +104,10 @@ balance_sheet_ratios <- list(
   ),
 
   lease_liability_growth = list(
-    current = lapply(fixed_assets_params$growth_rates$pp_and_a_rou, 
-                     function(x) (1 + x) * (1 - fixed_assets_params$depreciation_rates$pp_and_a_rou$period_1)),
-    non_current = lapply(fixed_assets_params$growth_rates$pp_and_a_rou,
-                         function(x) (1 + x) * (1 - fixed_assets_params$depreciation_rates$pp_and_a_rou$period_1))
+    current = lapply(fixed_assets_params$growth_rates$ppe_rou, 
+                     function(x) (1 + x) * (1 - fixed_assets_params$depreciation_rates$ppe_rou$period_1)),
+    non_current = lapply(fixed_assets_params$growth_rates$ppe_rou,
+                         function(x) (1 + x) * (1 - fixed_assets_params$depreciation_rates$ppe_rou$period_1))
   ),
 
   provisions_to_inventory = list(
