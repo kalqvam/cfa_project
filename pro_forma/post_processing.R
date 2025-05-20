@@ -23,7 +23,7 @@ format_financial_statements <- function(df_is, df_bs) {
                        "Other_current_liabilities", "Other_non_current_liabilities",
                        "Non_current_provisions")
   equity_columns <- c("Reserve_for_invested_equity", "Retained_earnings", "Other_equity")
-  total_columns <- c("Total_Assets", "Total_Liabilities_Equity")
+  total_columns <- c("Total_Assets", "Total_Liabilities_Equity", "Total_Interest_Bearing_Debt")
   
   formatted_bs <- formatted_bs[, c("Period", 
                                 asset_columns, 
