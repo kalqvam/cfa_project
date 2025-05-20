@@ -77,24 +77,24 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
         (1 - fixed_assets_params$depreciation_rates$intangible_assets[[period_name]] / 4)
       
       df_bs$PPE_owned[i] <- df_bs$PPE_owned[prev_period] * 
-        (1 + fixed_assets_params$growth_rates$PPE_owned[[period_name]] / 4) * 
-        (1 - fixed_assets_params$depreciation_rates$PPE_owned[[period_name]] / 4)
+        (1 + fixed_assets_params$growth_rates$ppe_owned[[period_name]] / 4) * 
+        (1 - fixed_assets_params$depreciation_rates$ppe_owned[[period_name]] / 4)
       
       df_bs$PPE_ROU[i] <- df_bs$PPE_ROU[prev_period] * 
-        (1 + fixed_assets_params$growth_rates$PPE_rou[[period_name]] / 4) * 
-        (1 - fixed_assets_params$depreciation_rates$PPE_rou[[period_name]] / 4)
+        (1 + fixed_assets_params$growth_rates$ppe_rou[[period_name]] / 4) * 
+        (1 - fixed_assets_params$depreciation_rates$ppe_rou[[period_name]] / 4)
 
       df_is$Depreciation_and_amortization[i] <- (
         df_bs$Intangible_assets[prev_period] * 
           fixed_assets_params$depreciation_rates$intangible_assets[[period_name]] / 4 +
           df_bs$PPE_owned[prev_period] * 
-          fixed_assets_params$depreciation_rates$PPE_owned[[period_name]] / 4 +
+          fixed_assets_params$depreciation_rates$ppe_owned[[period_name]] / 4 +
           df_bs$PPE_ROU[prev_period] * 
-          fixed_assets_params$depreciation_rates$PPE_rou[[period_name]] / 4
+          fixed_assets_params$depreciation_rates$ppe_rou[[period_name]] / 4
       )
 
-      rou_growth <- fixed_assets_params$growth_rates$PPE_rou[[period_name]] / 4
-      rou_depr <- fixed_assets_params$depreciation_rates$PPE_rou[[period_name]] / 4
+      rou_growth <- fixed_assets_params$growth_rates$ppe_rou[[period_name]] / 4
+      rou_depr <- fixed_assets_params$depreciation_rates$ppe_rou[[period_name]] / 4
       lease_growth <- (1 + rou_growth) * (1 - rou_depr)
       
       df_bs$Lease_liabilities_current[i] <- df_bs$Lease_liabilities_current[prev_period] * 
@@ -108,27 +108,27 @@ calculate_proforma_projections <- function(df_is, df_bs, revenue_growth_rates, e
         (1 - fixed_assets_params$depreciation_rates$intangible_assets[[period_name]])
       
       df_bs$PPE_owned[i] <- df_bs$PPE_owned[prev_period] * 
-        (1 + fixed_assets_params$growth_rates$PPE_owned[[period_name]]) * 
-        (1 - fixed_assets_params$depreciation_rates$PPE_owned[[period_name]])
+        (1 + fixed_assets_params$growth_rates$ppe_owned[[period_name]]) * 
+        (1 - fixed_assets_params$depreciation_rates$ppe_owned[[period_name]])
       
       df_bs$PPE_ROU[i] <- df_bs$PPE_ROU[prev_period] * 
-        (1 + fixed_assets_params$growth_rates$PPE_rou[[period_name]]) * 
-        (1 - fixed_assets_params$depreciation_rates$PPE_rou[[period_name]])
+        (1 + fixed_assets_params$growth_rates$ppe_rou[[period_name]]) * 
+        (1 - fixed_assets_params$depreciation_rates$ppe_rou[[period_name]])
       
       df_is$Depreciation_and_amortization[i] <- (
         df_bs$Intangible_assets[prev_period] * 
           (1 + fixed_assets_params$growth_rates$intangible_assets[[period_name]]) *
           fixed_assets_params$depreciation_rates$intangible_assets[[period_name]] +
           df_bs$PPE_owned[prev_period] * 
-          (1 + fixed_assets_params$growth_rates$PPE_owned[[period_name]]) * 
-          fixed_assets_params$depreciation_rates$PPE_owned[[period_name]] +
+          (1 + fixed_assets_params$growth_rates$ppe_owned[[period_name]]) * 
+          fixed_assets_params$depreciation_rates$ppe_owned[[period_name]] +
           df_bs$PPE_ROU[prev_period] * 
-          (1 + fixed_assets_params$growth_rates$PPE_rou[[period_name]]) *
-          fixed_assets_params$depreciation_rates$PPE_rou[[period_name]]
+          (1 + fixed_assets_params$growth_rates$ppe_rou[[period_name]]) *
+          fixed_assets_params$depreciation_rates$ppe_rou[[period_name]]
       )
 
-      rou_growth <- fixed_assets_params$growth_rates$PPE_rou[[period_name]]
-      rou_depr <- fixed_assets_params$depreciation_rates$PPE_rou[[period_name]]
+      rou_growth <- fixed_assets_params$growth_rates$ppe_rou[[period_name]]
+      rou_depr <- fixed_assets_params$depreciation_rates$ppe_rou[[period_name]]
       lease_growth <- (1 + rou_growth) * (1 - rou_depr)
       
       df_bs$Lease_liabilities_current[i] <- df_bs$Lease_liabilities_current[prev_period] * 
