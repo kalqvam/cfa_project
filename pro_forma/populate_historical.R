@@ -35,7 +35,7 @@ prepare_historical_dataframes <- function(df_is, df_bs, historical_data, histori
     df_is$Net_income[i] <- df_is$EBT[i] + df_is$Corporate_income_tax[i]
   }
   
-  return(TRUE)
+  return(list(df_is = df_is, df_bs = df_bs))
 }
 
 result_historical <- prepare_historical_dataframes(df_is, df_bs, historical_data, historical_bs_data, tax_rates)
