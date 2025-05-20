@@ -17,7 +17,7 @@ expense_categories <- c("Materials_and_services", "Employee_benefits",
 
 # Balance sheet categories
 bs_operating_asset_categories <- c("Intangible_assets", "PP_and_A_owned", 
-                                "PP_and_A_ROU", "Inventories", 
+                                "PP_and_A`_ROU", "Inventories", 
                                 "Trade_receivables", "Other_current_assets",
                                 "Other_non_current_assets")
 
@@ -34,3 +34,31 @@ bs_liability_equity_categories <- c("Reserve_for_invested_equity",
 bs_interest_bearing_debt_categories <- c("Short_term_loans", "Long_term_loans",
                                       "Lease_liabilities_current", 
                                       "Lease_liabilities_non_current")
+
+df_is <- data.frame(Period = all_periods)
+
+for (region in revenue_regions) {
+  df_is[[region]] <- NA
+}
+
+for (category in expense_categories) {
+  df_is[[category]] <- NA
+}
+
+df_is$Total_revenue <- NA
+df_is$EBITDA <- NA
+df_is$EBIT <- NA
+df_is$EBT <- NA
+df_is$Corporate_income_tax <- NA
+df_is$Net_income <- NA
+
+df_bs <- data.frame(Period = all_periods)
+
+for (category in bs_categories) {
+  df_bs[[category]] <- NA
+}
+
+df_bs$Total_Assets <- NA
+df_bs$Total_Operating_Assets <- NA
+df_bs$Total_Liabilities_Equity <- NA
+df_bs$Total_Interest_Bearing_Debt <- NA
