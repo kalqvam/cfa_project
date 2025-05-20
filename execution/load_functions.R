@@ -14,7 +14,7 @@ source("pro_forma/wrapper_function.R")
 
 source("dcf/inputs_dcf.R")
 source("dcf/calculation_wacc.R")
-source("dcf/calcluation_dcf.R")
+source("dcf/calculation_dcf.R")
 
 cat("All functions and data loaded successfully.\n")
 cat("Ready to run financial model with run_complete_financial_model(df_is, df_bs)\n")
