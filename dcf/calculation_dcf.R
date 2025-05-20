@@ -81,7 +81,7 @@ calculate_dcf <- function(income_statement, balance_sheet, wacc_results, fixed_a
 
   return(list(
     wacc = wacc,
-    wacc_components = wacc_result,
+    wacc_components = wacc_results,
     fcff_calculations = df,
     enterprise_value = enterprise_value,
     equity_value = equity_value,
