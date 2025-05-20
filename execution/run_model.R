@@ -1,4 +1,4 @@
-source("load_functions.R")
+source("execution/load_functions.R")
 
 financial_statements <- run_complete_financial_model(df_is, df_bs)
 
