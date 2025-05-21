@@ -1,7 +1,10 @@
+library(Matrix)
+library(MASS)
+
 generate_simulation_inputs <- function(
     base_inputs,
     projection_periods = 2025:2030,
-    n_scenarios = 100000,
+    n_scenarios = 100,
     apply_shocks = TRUE
 ) {
   
@@ -524,7 +527,7 @@ generate_simulation_inputs <- function(
 
 run_monte_carlo_dcf <- function(
     base_inputs,
-    n_scenarios = 100000,
+    n_scenarios = 100,
     historical_data,
     historical_bs_data
 ) {
@@ -602,7 +605,7 @@ base_inputs <- list(
 # Then run the Monte Carlo simulation
 monte_carlo_results <- run_monte_carlo_dcf(
   base_inputs = base_inputs,
-  n_scenarios = 100000,
+  n_scenarios = 100,
   historical_data = historical_data,
   historical_bs_data = historical_bs_data
 )
