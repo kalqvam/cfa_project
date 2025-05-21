@@ -587,7 +587,7 @@ run_monte_carlo_dcf <- function(
   }
   
   # Convert results to data frame
-  results_df <- do.call(rbind, lapply(valuation_results, as.data.frame))
+  results_df <- bind_rows(valuation_results)
   
   # Calculate summary statistics
   summary_stats <- list(
