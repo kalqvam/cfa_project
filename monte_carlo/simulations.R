@@ -543,15 +543,35 @@ run_monte_carlo_dcf <- function(
   
   # Run DCF for each scenario
   for(i in 1:n_scenarios) {
-    # Create proforma statements with simulated inputs
-    proforma_statements <- run_complete_financial_model(df_is, df_bs)
+    # Create clean copies of the global dataframes for this scenario
+    scenario_df_is <- df_is
+    scenario_df_bs <- df_bs
     
-    # Run DCF calculation
+    # Apply simulation inputs to this scenario
+    current_inputs <- simulation_inputs[[i]]
+    
+    # Create proforma statements with simulated inputs
+    proforma_statements <- run_complete_financial_model_with_params(
+      df_is = scenario_df_is,
+      df_bs = scenario_df_bs,
+      revenue_growth_rates = current_inputs$revenue_growth_rates,
+      expense_ratios = current_inputs$expense_ratios,
+      fixed_assets_params = current_inputs$fixed_assets_params,
+      working_capital_ratios = current_inputs$working_capital_ratios,
+      balance_sheet_ratios = balance_sheet_ratios,  # Keep global
+      interest_rates = interest_rates,  # Keep global
+      tax_rates = tax_rates  # Keep global
+    )
+    
+    # Calculate WACC with simulated inputs
+    scenario_wacc_results <- calculate_wacc(current_inputs$dcf_inputs)
+    
+    # Run DCF calculation with simulated inputs
     dcf_result <- calculate_dcf(
       income_statement = proforma_statements$income_statement,
       balance_sheet = proforma_statements$balance_sheet,
-      wacc_results = wacc_results,
-      fixed_assets_params = fixed_assets_params  # Changed this line
+      wacc_results = scenario_wacc_results,
+      fixed_assets_params = current_inputs$fixed_assets_params
     )
     
     # Store results
@@ -561,8 +581,8 @@ run_monte_carlo_dcf <- function(
       enterprise_value = dcf_result$enterprise_value,
       equity_value = dcf_result$equity_value,
       wacc = dcf_result$wacc,
-      risk_free_rate = simulation_inputs[[i]]$dcf_inputs$risk_free_rate,  # Added
-      market_risk_premium = simulation_inputs[[i]]$dcf_inputs$market_risk_premium  # Added
+      risk_free_rate = current_inputs$dcf_inputs$risk_free_rate,
+      market_risk_premium = current_inputs$dcf_inputs$market_risk_premium
     )
   }
   
