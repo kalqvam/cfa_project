@@ -548,8 +548,8 @@ run_monte_carlo_dcf <- function(
     
     # Run DCF calculation
     dcf_result <- calculate_dcf(
-      income_statement = run_complete_financial_model$income_statement,
-      balance_sheet = run_complete_financial_model$balance_sheet,
+      income_statement = proforma_statements$income_statement,
+      balance_sheet = proforma_statements$balance_sheet,
       wacc_results = wacc_results,
       fixed_assets_params = fixed_assets_params  # Changed this line
     )
