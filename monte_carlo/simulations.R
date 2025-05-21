@@ -1,3 +1,4 @@
+#install.packages(c("Matrix", "MASS"))
 library(Matrix)
 library(MASS)
 
@@ -543,23 +544,14 @@ run_monte_carlo_dcf <- function(
   # Run DCF for each scenario
   for(i in 1:n_scenarios) {
     # Create proforma statements with simulated inputs
-    proforma_statements <- create_proforma_statements(
-      historical_data = historical_data,
-      historical_bs_data = historical_bs_data,
-      revenue_growth_rates = simulation_inputs[[i]]$revenue_growth_rates,
-      expense_ratios = simulation_inputs[[i]]$expense_ratios,
-      fixed_assets_params = simulation_inputs[[i]]$fixed_assets_params,
-      working_capital_ratios = simulation_inputs[[i]]$working_capital_ratios,
-      balance_sheet_ratios = base_inputs$balance_sheet_ratios,
-      interest_rates = base_inputs$interest_rates,
-      tax_rates = base_inputs$tax_rates
-    )
+    proforma_statements <- run_complete_financial_model(df_is, df_bs)
     
     # Run DCF calculation
-    dcf_result <- calculate_dcf_valuation(
-      income_statement = proforma_statements$income_statement,
-      balance_sheet = proforma_statements$balance_sheet,
-      dcf_inputs = simulation_inputs[[i]]$dcf_inputs  # Changed this line
+    dcf_result <- calculate_dcf(
+      income_statement = run_complete_financial_model$income_statement,
+      balance_sheet = run_complete_financial_model$balance_sheet,
+      wacc_results = wacc_results,
+      fixed_assets_params = fixed_assets_params  # Changed this line
     )
     
     # Store results
