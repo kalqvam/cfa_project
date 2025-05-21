@@ -75,3 +75,18 @@ simulate_converging_ratio_with_correlation <- function(
   
   return(value)
 }
+
+generate_correlated_normals <- function(n_scenarios, corr_matrix) {
+  mvrnorm(n_scenarios, 
+          mu = rep(0, nrow(corr_matrix)), 
+          Sigma = corr_matrix)
+}
+
+generate_period_correlated_draws <- function(corr_matrix) {
+  draws <- mvrnorm(
+    n = 1,
+    mu = rep(0, nrow(corr_matrix)), 
+    Sigma = corr_matrix
+  )
+  return(draws)
+}
