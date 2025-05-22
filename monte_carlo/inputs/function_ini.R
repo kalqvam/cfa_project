@@ -42,38 +42,78 @@ generate_samples <- function(dist_fn, n = 100) {
   )
 }
 
+# Updated mean-reverting growth function with specific Monte Carlo logic
 simulate_mean_reverting_growth_with_correlation <- function(
     initial_value,
     target_value,
-    theta,
-    sigma,
-    correlated_draw
+    correlated_draws,
+    theta = 0.2,
+    sigma = 0.025
 ) {
-  dX <- theta * (target_value - initial_value) + sigma * correlated_draw
-  new_value <- initial_value + dX - 0.025
+  # Simulate for all periods at once using the specific logic from simulations.R
+  period_1 <- initial_value + sigma * correlated_draws[1]
+  period_2 <- period_1 * (1.25) + theta * (target_value - period_1) + sigma * correlated_draws[2]
+  period_3 <- period_2 * (0.7) + theta * (target_value - period_2) + sigma * correlated_draws[3]
+  period_4 <- target_value
   
-  return(new_value)
+  return(c(period_1 = period_1, 
+           period_2 = period_2, 
+           period_3 = period_3, 
+           period_4 = period_4))
 }
 
+# Updated converging ratio function with specific Monte Carlo logic
 simulate_converging_ratio_with_correlation <- function(
     initial_mean,
     target_mean,
     initial_sd,
     target_sd,
-    correlated_draw,
-    shape_param = 5
+    correlated_draws,
+    shape_param = 5,
+    k = 0.025
 ) {
-  unif_value <- pnorm(correlated_draw)
+  # Input validation
+  if (is.null(initial_mean) || is.null(target_mean) || is.null(initial_sd) || 
+      is.na(initial_mean) || is.na(target_mean) || is.na(initial_sd) ||
+      initial_mean == "" || target_mean == "" || initial_sd == "") {
+    stop("Invalid inputs: all parameters must have valid numeric values")
+  }
   
-  mean_i <- max(0.001, min(0.999, initial_mean))
-  sd_i <- min(initial_sd, sqrt(mean_i * (1 - mean_i)))
-  variance <- sd_i^2
-  alpha <- ((1 - mean_i) / variance - 1/mean_i) * mean_i^2
-  beta <- alpha * (1/mean_i - 1)
+  # Create vector only for the actual draws
+  values <- numeric(length(correlated_draws))
   
-  value <- qbeta(unif_value, alpha, beta)
+  for(i in 1:length(correlated_draws)) {
+    unif_value <- pnorm(correlated_draws[i])
+    
+    # Ensure valid bounds for beta distribution
+    mean_i <- max(0.001, min(0.999, initial_mean))
+    sd_i <- min(initial_sd, sqrt(mean_i * (1 - mean_i)))
+    variance <- sd_i^2
+    
+    # Safety checks for alpha/beta calculation
+    if (variance <= 0 || mean_i <= 0 || mean_i >= 1) {
+      stop(paste("Invalid parameters for beta distribution:",
+                 "mean =", mean_i, "variance =", variance))
+    }
+    
+    alpha <- (((1 - mean_i) / variance - 1/mean_i) * mean_i^2)
+    beta <- (alpha * (1/mean_i - 1))
+    
+    alpha_corr <- alpha * (1 + k * correlated_draws[i])
+    
+    # Safety check for alpha/beta
+    if (alpha <= 0 || beta <= 0) {
+      stop(paste("Invalid alpha/beta parameters:",
+                 "alpha =", alpha, "beta =", beta))
+    }
+    
+    values[i] <- qbeta(unif_value, 20 * alpha_corr, 20 * beta)
+  }
   
-  return(value)
+  # Add terminal value
+  values <- c(values, target_mean)
+  
+  return(values)
 }
 
 generate_correlated_normals <- function(n_scenarios, corr_matrix) {
