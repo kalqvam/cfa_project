@@ -1,6 +1,7 @@
 #install.packages(c("Matrix", "MASS"))
 library(Matrix)
 library(MASS)
+library(dplyr)
 
 generate_simulation_inputs <- function(
     base_inputs,
