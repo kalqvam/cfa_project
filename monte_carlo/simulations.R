@@ -197,6 +197,12 @@ generate_simulation_inputs <- function(
     names(expense_ratios$employee_benefits) <- paste0("period_", 1:4)
     names(expense_ratios$other_operating_expenses) <- paste0("period_", 1:4)
 
+    names(new_working_capital_ratios$inventory_to_revenue) <- paste0("period_", 1:4)
+    names(new_working_capital_ratios$trade_receivables_to_revenue) <- paste0("period_", 1:4)
+    names(new_working_capital_ratios$trade_payables_to_revenue) <- paste0("period_", 1:4)
+    names(new_working_capital_ratios$other_current_liab_to_revenue) <- paste0("period_", 1:4)
+
+
     if(apply_shocks) {
       for(shock_name in names(shock_scenarios)) {
         shock_info <- shock_scenarios[[shock_name]]
