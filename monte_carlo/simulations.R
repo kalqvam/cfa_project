@@ -19,105 +19,6 @@ generate_simulation_inputs <- function(
     }
   }
   
-  generate_period_correlated_draws <- function(corr_matrix) {
-    # Generate single set of correlated draws
-    draws <- mvrnorm(
-      n = 1,  # One row of draws
-      mu = rep(0, nrow(corr_matrix)), 
-      Sigma = corr_matrix
-    )
-    return(draws)
-  }
-  
-  # Modified simulation function for revenues incorporating correlations
-  simulate_mean_reverting_growth_with_correlation <- function(
-    initial_value,
-    target_value,
-    theta = 0.2,
-    sigma = 0.025,
-    correlated_draws  # Vector of correlated draws for all periods
-  ) {
-    # Simulate for all periods at once
-    period_1 <- initial_value + sigma * correlated_draws[1]
-    period_2 <- period_1 * (1.25) + theta * (target_value - period_1) + sigma * correlated_draws[2]
-    period_3 <- period_2 * (0.7) + theta * (target_value - period_2) + sigma * correlated_draws[3]
-    period_4 <- target_value
-    
-    return(c(period_1 = period_1, 
-             period_2 = period_2, 
-             period_3 = period_3, 
-             period_4 = period_4))
-  }
-  
-  # Modified simulation function for expense ratios incorporating correlations
-  simulate_converging_ratio_with_correlation <- function(
-    initial_mean,
-    target_mean,
-    initial_sd,
-    target_sd,
-    correlated_draws,  
-    shape_param = 5, 
-    k = 0.025
-  ) {
-    # Input validation
-    if (is.null(initial_mean) || is.null(target_mean) || is.null(initial_sd) || 
-        is.na(initial_mean) || is.na(target_mean) || is.na(initial_sd) ||
-        initial_mean == "" || target_mean == "" || initial_sd == "") {
-      stop("Invalid inputs: all parameters must have valid numeric values")
-    }
-    
-    # Create vector only for the actual draws
-    values <- numeric(length(correlated_draws))
-    
-    for(i in 1:length(correlated_draws)) {
-      unif_value <- pnorm(correlated_draws[i])
-      
-      # Ensure valid bounds for beta distribution
-      mean_i <- max(0.001, min(0.999, initial_mean))
-      sd_i <- min(initial_sd, sqrt(mean_i * (1 - mean_i)))
-      variance <- sd_i^2
-      
-      # Safety checks for alpha/beta calculation
-      if (variance <= 0 || mean_i <= 0 || mean_i >= 1) {
-        stop(paste("Invalid parameters for beta distribution:",
-                   "mean =", mean_i, "variance =", variance))
-      }
-      
-      alpha <- (((1 - mean_i) / variance - 1/mean_i) * mean_i^2)
-      beta <- (alpha * (1/mean_i - 1))
-      
-      #if (correlated_draws[i] >= 0) {
-      #  alpha_corr <- alpha # * (1 + k * correlated_draws[i])
-      #  beta_corr <- beta * (1 - 0.25 * k * correlated_draws[i])
-      #  
-      #} else if (correlated_draws[i] <= 0) {
-      #  alpha_corr <- alpha * (1 + k * correlated_draws[i])
-      #  beta_corr <- beta # * (1 - k * correlated_draws[i])
-      #  
-      #} else if (correlated_draws[i] <= 0) {
-      #  alpha_corr <- alpha
-      #  beta_corr <- beta
-      #  
-      #}
-      
-      alpha_corr <- alpha * (1 + k * correlated_draws[i])
-      
-      # Safety check for alpha/beta
-      if (alpha <= 0 || beta <= 0) {
-        stop(paste("Invalid alpha/beta parameters:",
-                   "alpha =", alpha, "beta =", beta))
-      }
-      
-      values[i] <- qbeta(unif_value, 20 * alpha_corr, 20 * beta)
-    }
-    
-    # Add terminal value
-    values <- c(values, target_mean)
-    
-    return(values)
-  }
-  
-  
   # Extract base rates for reference
   base_growth_rates <- list(
     Nordics = list(
@@ -169,7 +70,6 @@ generate_simulation_inputs <- function(
   
   simulated_scenarios <- vector("list", n_scenarios)
   
-
   # Beta distribution parameters for working capital ratios
   wc_beta_params <- list(
     inventory = list(
@@ -230,6 +130,7 @@ generate_simulation_inputs <- function(
     scenario_draws <- generate_correlated_normals(n_years, corr_matrix)
     scenario_draws_wc <- generate_correlated_normals(n_years, nwc_corr_matrix)
     
+    # Use the updated functions from function_ini.R - no redefinition needed
     nordics_growth <- simulate_mean_reverting_growth_with_correlation(
       initial_value = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_1"),
       target_value = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_4"),
@@ -254,7 +155,7 @@ generate_simulation_inputs <- function(
       correlated_draws = scenario_draws[1:3, 4]
     )
     
-    # Simulate all expense ratios and working capital ratios first
+    # Simulate all expense ratios and working capital ratios using updated functions
     materials_ratio <- simulate_converging_ratio_with_correlation(
       initial_mean = base_expense_ratios$materials["period_1"],
       target_mean = base_expense_ratios$materials["period_4"],
@@ -415,7 +316,6 @@ generate_simulation_inputs <- function(
       period_4 = other_current_ratio[6]
     )
     
-    
     # 3. Apply shocks if enabled
     if(apply_shocks) {
       for(shock_name in names(shock_scenarios)) {
@@ -452,12 +352,12 @@ generate_simulation_inputs <- function(
     intangibles_growth <- intangibles_mean + intangibles_sd * scenario_draws[, 8]
     
     # PP&E (owned)
-    ppe_mean <- base_inputs$fixed_assets_params$growth_rates$pp_and_a_owned$period_1
+    ppe_mean <- base_inputs$fixed_assets_params$growth_rates$ppe_owned$period_1
     ppe_sd <- 0.08  # Higher volatility for PP&E
     ppe_growth <- ppe_mean + ppe_sd * ppe_draws
     
     # ROU assets
-    rou_mean <- base_inputs$fixed_assets_params$growth_rates$pp_and_a_rou$period_1
+    rou_mean <- base_inputs$fixed_assets_params$growth_rates$ppe_rou$period_1
     rou_sd <- 0.06  # Moderate volatility for ROU assets
     rou_growth <- rou_mean + rou_sd * rou_draws
     
@@ -477,14 +377,14 @@ generate_simulation_inputs <- function(
       period_4 = intangibles_growth[6]  # Use last value for terminal period
     )
     
-    new_fixed_assets_params$growth_rates$pp_and_a_owned <- list(
+    new_fixed_assets_params$growth_rates$ppe_owned <- list(
       period_1 = ppe_growth[1],
       period_2 = ppe_growth[2],
       period_3 = ppe_growth[3],
       period_4 = ppe_growth[6]  # Use last value for terminal period
     )
     
-    new_fixed_assets_params$growth_rates$pp_and_a_rou <- list(
+    new_fixed_assets_params$growth_rates$ppe_rou <- list(
       period_1 = rou_growth[1],
       period_2 = rou_growth[2],
       period_3 = rou_growth[3],
