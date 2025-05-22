@@ -10,71 +10,13 @@ generate_simulation_inputs <- function(
     apply_shocks = TRUE
 ) {
   
-  get_growth_rate <- function(rates, region, period) {
-    # Handle both list and vector structures
-    if (is.list(rates[[region]])) {
-      return(rates[[region]][[period]])
-    } else {
-      return(rates[[region]][period])
-    }
-  }
-  
-  # Extract base rates for reference
-  base_growth_rates <- list(
-    Nordics = list(
-      period_1 = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_1"),
-      period_2 = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_2"),
-      period_3 = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_3"),
-      period_4 = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_4")
-    ),
-    Rest_of_Europe = list(
-      period_1 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_Europe", "period_1"),
-      period_2 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_Europe", "period_2"),
-      period_3 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_Europe", "period_3"),
-      period_4 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_Europe", "period_4")
-    ),
-    North_America = list(
-      period_1 = get_growth_rate(base_inputs$revenue_growth_rates, "North_America", "period_1"),
-      period_2 = get_growth_rate(base_inputs$revenue_growth_rates, "North_America", "period_2"),
-      period_3 = get_growth_rate(base_inputs$revenue_growth_rates, "North_America", "period_3"),
-      period_4 = get_growth_rate(base_inputs$revenue_growth_rates, "North_America", "period_4")
-    ),
-    Rest_of_World = list(
-      period_1 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_World", "period_1"),
-      period_2 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_World", "period_2"),
-      period_3 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_World", "period_3"),
-      period_4 = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_World", "period_4")
-    )
-  )
-  
-  base_expense_ratios <- list(
-    materials = c(
-      period_1 = base_inputs$expense_ratios$materials_and_services$period_1,
-      period_2 = base_inputs$expense_ratios$materials_and_services$period_2,
-      period_3 = base_inputs$expense_ratios$materials_and_services$period_3,
-      period_4 = base_inputs$expense_ratios$materials_and_services$period_4
-    ),
-    employee = c(
-      period_1 = base_inputs$expense_ratios$employee_benefits$period_1,
-      period_2 = base_inputs$expense_ratios$employee_benefits$period_2,
-      period_3 = base_inputs$expense_ratios$employee_benefits$period_3,
-      period_4 = base_inputs$expense_ratios$employee_benefits$period_4
-    ),
-    other = c(
-      period_1 = base_inputs$expense_ratios$other_operating_expenses$period_1,
-      period_2 = base_inputs$expense_ratios$other_operating_expenses$period_2,
-      period_3 = base_inputs$expense_ratios$other_operating_expenses$period_3,
-      period_4 = base_inputs$expense_ratios$other_operating_expenses$period_4
-    )
-  )
-  
-  simulated_scenarios <- vector("list", n_scenarios)
-  
-  # Beta distribution parameters for working capital ratios
+  base_growth_rates <- base_inputs$revenue_growth_rates
+  base_expense_ratios <- base_inputs$expense_ratios
+
   wc_beta_params <- list(
     inventory = list(
       mean = base_inputs$working_capital_ratios$inventory_to_revenue$period_1,
-      sd = 0.025,  # Adjust these SDs based on desired volatility
+      sd = 0.025,
       shape_param = 5
     ),
     receivables = list(
@@ -99,7 +41,6 @@ generate_simulation_inputs <- function(
   n_years <- length(projection_periods)
   n_vars <- nrow(corr_matrix)
   
-  # Storage lists for all scenarios
   simulated_scenarios <- vector("list", n_scenarios)
   
   shock_impact_tracking <- if(apply_shocks) {
@@ -130,57 +71,54 @@ generate_simulation_inputs <- function(
     scenario_draws <- generate_correlated_normals(n_years, corr_matrix)
     scenario_draws_wc <- generate_correlated_normals(n_years, nwc_corr_matrix)
     
-    # Use the updated functions from function_ini.R - no redefinition needed
     nordics_growth <- simulate_mean_reverting_growth_with_correlation(
-      initial_value = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_1"),
-      target_value = get_growth_rate(base_inputs$revenue_growth_rates, "Nordics", "period_4"),
+      initial_value = base_growth_rates$Nordics$period_1,
+      target_value = base_growth_rates$Nordics$period_4,
       correlated_draws = scenario_draws[1:3, 1]
     )
     
     roe_growth <- simulate_mean_reverting_growth_with_correlation(
-      initial_value = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_Europe", "period_1"),
-      target_value = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_Europe", "period_4"),
+      initial_value = base_growth_rates$Rest_of_Europe$period_1,
+      target_value = base_growth_rates$Rest_of_Europe$period_4,
       correlated_draws = scenario_draws[1:3, 2]
     )
     
     na_growth <- simulate_mean_reverting_growth_with_correlation(
-      initial_value = get_growth_rate(base_inputs$revenue_growth_rates, "North_America", "period_1"),
-      target_value = get_growth_rate(base_inputs$revenue_growth_rates, "North_America", "period_4"),
+      initial_value = base_growth_rates$North_America$period_1,
+      target_value = base_growth_rates$North_America$period_4,
       correlated_draws = scenario_draws[1:3, 3]
     )
     
     row_growth <- simulate_mean_reverting_growth_with_correlation(
-      initial_value = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_World", "period_1"),
-      target_value = get_growth_rate(base_inputs$revenue_growth_rates, "Rest_of_World", "period_4"),
+      initial_value = base_growth_rates$Rest_of_World$period_1,
+      target_value = base_growth_rates$Rest_of_World$period_4,
       correlated_draws = scenario_draws[1:3, 4]
     )
-    
-    # Simulate all expense ratios and working capital ratios using updated functions
+
     materials_ratio <- simulate_converging_ratio_with_correlation(
-      initial_mean = base_expense_ratios$materials["period_1"],
-      target_mean = base_expense_ratios$materials["period_4"],
+      initial_mean = base_expense_ratios$materials_and_services$period_1,
+      target_mean = base_expense_ratios$materials_and_services$period_4,
       initial_sd = 0.005,
       target_sd = 0.005,
       correlated_draws = scenario_draws[1:3, 5]
     )
     
     employee_ratio <- simulate_converging_ratio_with_correlation(
-      initial_mean = base_expense_ratios$employee["period_1"] - 0.045,
-      target_mean = base_expense_ratios$employee["period_4"],
+      initial_mean = base_expense_ratios$employee_benefits$period_1 - 0.045,
+      target_mean = base_expense_ratios$employee_benefits$period_4,
       initial_sd = 0.015,
       target_sd = 0.005,
       correlated_draws = scenario_draws[1:3, 6]
     )
     
     other_ratio <- simulate_converging_ratio_with_correlation(
-      initial_mean = base_expense_ratios$other["period_1"] - 0.025,
-      target_mean = base_expense_ratios$other["period_4"],
+      initial_mean = base_expense_ratios$other_operating_expenses$period_1 - 0.025,
+      target_mean = base_expense_ratios$other_operating_expenses$period_4,
       initial_sd = 0.015,
       target_sd = 0.005,
       correlated_draws = scenario_draws[1:3, 7]
     )
-    
-    # Simulate all working capital ratios
+
     inventory_ratio <- simulate_converging_ratio_with_correlation(
       initial_mean = wc_beta_params$inventory$mean,
       target_mean = wc_beta_params$inventory$mean,
@@ -217,106 +155,48 @@ generate_simulation_inputs <- function(
       shape_param = wc_beta_params$other_ratio$shape_param
     )
     
-    # Generate new random draws for rates and asset growths
     rf_rate_draws <- rnorm(n_years)
     mrp_draws <- rnorm(n_years)
     ppe_draws <- rnorm(n_years)
     rou_draws <- rnorm(n_years)
     
-    # Simulate risk-free rate
     rf_mean <- base_inputs$dcf_inputs$risk_free_rate
     rf_sd <- 0.003
     rf_rate <- rf_mean + rf_sd * rf_rate_draws
     
-    # Simulate market risk premium
     mrp_mean <- base_inputs$dcf_inputs$market_risk_premium
     mrp_sd <- 0.01
     mrp <- mrp_mean + mrp_sd * mrp_draws
     
-    # Ensure rates stay within reasonable bounds
     rf_rate <- pmax(0, rf_rate)
     mrp <- pmax(0.02, mrp)
     
-    growth_rates <- list(
-      Nordics = list(
-        period_1 = nordics_growth["period_1"],
-        period_2 = nordics_growth["period_2"],
-        period_3 = nordics_growth["period_3"],
-        period_4 = nordics_growth["period_4"]
-      ),
-      Rest_of_Europe = list(
-        period_1 = roe_growth["period_1"],
-        period_2 = roe_growth["period_2"],
-        period_3 = roe_growth["period_3"],
-        period_4 = roe_growth["period_4"]
-      ),
-      North_America = list(
-        period_1 = na_growth["period_1"],
-        period_2 = na_growth["period_2"],
-        period_3 = na_growth["period_3"],
-        period_4 = na_growth["period_4"]
-      ),
-      Rest_of_World = list(
-        period_1 = row_growth["period_1"],
-        period_2 = row_growth["period_2"],
-        period_3 = row_growth["period_3"],
-        period_4 = row_growth["period_4"]
-      )
-    )
+    growth_rates <- base_growth_rates
+    growth_rates$Nordics <- as.list(nordics_growth)
+    growth_rates$Rest_of_Europe <- as.list(roe_growth)
+    growth_rates$North_America <- as.list(na_growth)
+    growth_rates$Rest_of_World <- as.list(row_growth)
     
-    expense_ratios <- list(
-      materials_and_services = list(
-        period_1 = materials_ratio[1],
-        period_2 = materials_ratio[2],
-        period_3 = materials_ratio[3],
-        period_4 = materials_ratio[4]
-      ),
-      employee_benefits = list(
-        period_1 = employee_ratio[1],
-        period_2 = employee_ratio[2],
-        period_3 = employee_ratio[3],
-        period_4 = employee_ratio[4]
-      ),
-      other_operating_expenses = list(
-        period_1 = other_ratio[1],
-        period_2 = other_ratio[2],
-        period_3 = other_ratio[3],
-        period_4 = other_ratio[4]
-      )
-    )
+    expense_ratios <- base_expense_ratios
+    expense_ratios$materials_and_services <- as.list(materials_ratio)
+    expense_ratios$employee_benefits <- as.list(employee_ratio)
+    expense_ratios$other_operating_expenses <- as.list(other_ratio)
     
     new_working_capital_ratios <- base_inputs$working_capital_ratios
+    new_working_capital_ratios$inventory_to_revenue <- as.list(inventory_ratio[c(1:3, 6)])
+    new_working_capital_ratios$trade_receivables_to_revenue <- as.list(receivables_ratio[c(1:3, 6)])
+    new_working_capital_ratios$trade_payables_to_revenue <- as.list(payables_ratio[c(1:3, 6)])
+    new_working_capital_ratios$other_current_liab_to_revenue <- as.list(other_current_ratio[c(1:3, 6)])
+
+    names(growth_rates$Nordics) <- paste0("period_", 1:4)
+    names(growth_rates$Rest_of_Europe) <- paste0("period_", 1:4)
+    names(growth_rates$North_America) <- paste0("period_", 1:4)
+    names(growth_rates$Rest_of_World) <- paste0("period_", 1:4)
     
-    # Update with simulated values
-    new_working_capital_ratios$inventory_to_revenue <- list(
-      period_1 = inventory_ratio[1],
-      period_2 = inventory_ratio[2],
-      period_3 = inventory_ratio[3],
-      period_4 = inventory_ratio[6]  # Use last value for terminal period
-    )
-    
-    new_working_capital_ratios$trade_receivables_to_revenue <- list(
-      period_1 = receivables_ratio[1],
-      period_2 = receivables_ratio[2],
-      period_3 = receivables_ratio[3],
-      period_4 = receivables_ratio[6]
-    )
-    
-    new_working_capital_ratios$trade_payables_to_revenue <- list(
-      period_1 = payables_ratio[1],
-      period_2 = payables_ratio[2],
-      period_3 = payables_ratio[3],
-      period_4 = payables_ratio[6]
-    )
-    
-    new_working_capital_ratios$other_current_liab_to_revenue <- list(
-      period_1 = other_current_ratio[1],
-      period_2 = other_current_ratio[2],
-      period_3 = other_current_ratio[3],
-      period_4 = other_current_ratio[6]
-    )
-    
-    # 3. Apply shocks if enabled
+    names(expense_ratios$materials_and_services) <- paste0("period_", 1:4)
+    names(expense_ratios$employee_benefits) <- paste0("period_", 1:4)
+    names(expense_ratios$other_operating_expenses) <- paste0("period_", 1:4)
+
     if(apply_shocks) {
       for(shock_name in names(shock_scenarios)) {
         shock_info <- shock_scenarios[[shock_name]]
@@ -348,65 +228,43 @@ generate_simulation_inputs <- function(
     }
     
     intangibles_mean <- base_inputs$fixed_assets_params$growth_rates$intangible_assets$period_1
-    intangibles_sd <- 0.04  # Using same volatility as before for consistency
+    intangibles_sd <- 0.04
     intangibles_growth <- intangibles_mean + intangibles_sd * scenario_draws[, 8]
     
-    # PP&E (owned)
     ppe_mean <- base_inputs$fixed_assets_params$growth_rates$ppe_owned$period_1
-    ppe_sd <- 0.08  # Higher volatility for PP&E
+    ppe_sd <- 0.08
     ppe_growth <- ppe_mean + ppe_sd * ppe_draws
-    
-    # ROU assets
+
     rou_mean <- base_inputs$fixed_assets_params$growth_rates$ppe_rou$period_1
-    rou_sd <- 0.06  # Moderate volatility for ROU assets
+    rou_sd <- 0.06
     rou_growth <- rou_mean + rou_sd * rou_draws
     
-    # Ensure growth rates stay within reasonable bounds
-    intangibles_growth <- pmax(0, intangibles_growth)  # Prevent negative growth
+    intangibles_growth <- pmax(0, intangibles_growth)
     ppe_growth <- pmax(0, ppe_growth)
     rou_growth <- pmax(0, rou_growth)
     
-    # Create a deep copy of fixed_assets_params
     new_fixed_assets_params <- base_inputs$fixed_assets_params
     
-    # Update only the intangible assets growth rates
-    new_fixed_assets_params$growth_rates$intangible_assets <- list(
-      period_1 = intangibles_growth[1],
-      period_2 = intangibles_growth[2],
-      period_3 = intangibles_growth[3],
-      period_4 = intangibles_growth[6]  # Use last value for terminal period
-    )
+    new_fixed_assets_params <- base_inputs$fixed_assets_params
+    new_fixed_assets_params$growth_rates$intangible_assets <- as.list(intangibles_growth[c(1:3, 6)])
+    new_fixed_assets_params$growth_rates$ppe_owned <- as.list(ppe_growth[c(1:3, 6)])
+    new_fixed_assets_params$growth_rates$ppe_rou <- as.list(rou_growth[c(1:3, 6)])
     
-    new_fixed_assets_params$growth_rates$ppe_owned <- list(
-      period_1 = ppe_growth[1],
-      period_2 = ppe_growth[2],
-      period_3 = ppe_growth[3],
-      period_4 = ppe_growth[6]  # Use last value for terminal period
-    )
-    
-    new_fixed_assets_params$growth_rates$ppe_rou <- list(
-      period_1 = rou_growth[1],
-      period_2 = rou_growth[2],
-      period_3 = rou_growth[3],
-      period_4 = rou_growth[6]  # Use last value for terminal period
-    )
-    
-    # Create a new dcf_inputs structure with simulated rates
+    names(new_fixed_assets_params$growth_rates$intangible_assets) <- paste0("period_", 1:4)
+    names(new_fixed_assets_params$growth_rates$ppe_owned) <- paste0("period_", 1:4)
+    names(new_fixed_assets_params$growth_rates$ppe_rou) <- paste0("period_", 1:4)
+
     new_dcf_inputs <- base_inputs$dcf_inputs
-    new_dcf_inputs$risk_free_rate <- rf_rate[1]  # Use first period rate
-    new_dcf_inputs$market_risk_premium <- mrp[1]  # Use first period premium
+    new_dcf_inputs$risk_free_rate <- rf_rate[1]
+    new_dcf_inputs$market_risk_premium <- mrp[1]
     
-    # Store the simulated values for this scenario
     simulated_scenarios[[scenario]] <- list(
-      # Growth rates by region
       revenue_growth_rates = growth_rates,
       expense_ratios = expense_ratios,
       working_capital_ratios = new_working_capital_ratios,
-      
-      # Asset growth rates
+
       fixed_assets_params = new_fixed_assets_params,
       
-      # Add the new DCF inputs
       dcf_inputs = new_dcf_inputs
     )
   }
