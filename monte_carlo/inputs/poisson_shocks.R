@@ -16,3 +16,9 @@ shock_severity_configs <- list(
     probabilities = c(0.05, 0.15, 0.2, 0.2, 0.25, 0.15)
   )
 )
+
+create_shock_severity_function <- function(config) {
+  function() {
+    sample(config$levels, 1, prob = config$probabilities)
+  }
+}
