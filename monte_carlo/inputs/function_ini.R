@@ -213,4 +213,38 @@ simulate_variable_group <- function(config, base_inputs, scenario_draws, scenari
     
     return(results)
   }
+
+  simulation_configs <- list(
+  revenue_growth = list(
+    regions = c("Nordics", "Rest_of_Europe", "North_America", "Rest_of_World"),
+    correlation_columns = 1:4,
+    simulation_type = "mean_reverting",
+    theta = 0.2,
+    sigma = 0.025,
+    base_path = c("revenue_growth_rates", "Nordics"),  # How to access base values
+    multipliers = c(1, 1.25, 0.7, 1)  # Period-specific multipliers for mean reversion
+  ),
+  
+  expense_ratios = list(
+    categories = c("materials_and_services", "employee_benefits", "other_operating_expenses"),
+    correlation_columns = 5:7,
+    simulation_type = "converging_ratio",
+    adjustments = c(0, -0.045, -0.025),  # Category-specific mean adjustments
+    initial_sds = c(0.005, 0.015, 0.015),
+    target_sds = c(0.005, 0.005, 0.005),
+    base_path = c("expense_ratios", "materials_and_services")  # How to access base values
+  ),
+  
+  working_capital = list(
+    categories = c("inventory_to_revenue", "trade_receivables_to_revenue", 
+                   "trade_payables_to_revenue", "other_current_liab_to_revenue"),
+    correlation_matrix = "nwc_corr_matrix",  # Uses separate correlation matrix
+    simulation_type = "converging_ratio_beta",
+    base_sds = c(0.025, 0.027, 0.013, 0.0225),
+    shape_params = rep(5, 4),
+    convergence_factors = c(0.7, 0.7, 0.7, 0.7),  # How much SD decreases over time
+    base_path = c("working_capital_ratios", "inventory_to_revenue")
+  )
+)
+
 }
