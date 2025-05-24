@@ -130,3 +130,87 @@ generate_period_correlated_draws <- function(corr_matrix) {
   )
   return(draws)
 }
+
+simulate_variable_group <- function(config, base_inputs, scenario_draws, scenario_draws_wc = NULL) {
+  
+  if (config$simulation_type == "mean_reverting") {
+    
+    results <- list()
+    
+    for (i in seq_along(config$regions)) {
+      region <- config$regions[i]
+      col_idx <- config$correlation_columns[i]
+      
+      # Get base values for this region
+      initial_value <- base_inputs$revenue_growth_rates[[region]]$period_1
+      target_value <- base_inputs$revenue_growth_rates[[region]]$period_4
+      
+      # Simulate with correlation
+      simulated_values <- simulate_mean_reverting_growth_with_correlation(
+        initial_value = initial_value,
+        target_value = target_value,
+        correlated_draws = scenario_draws[1:3, col_idx],
+        theta = config$theta,
+        sigma = config$sigma
+      )
+      
+      results[[region]] <- as.list(simulated_values)
+      names(results[[region]]) <- paste0("period_", 1:4)
+    }
+    
+    return(results)
+    
+  } else if (config$simulation_type == "converging_ratio") {
+    
+    results <- list()
+    
+    for (i in seq_along(config$categories)) {
+      category <- config$categories[i]
+      col_idx <- config$correlation_columns[i]
+      
+      # Get base values for this category
+      initial_mean <- base_inputs$expense_ratios[[category]]$period_1 + config$adjustments[i]
+      target_mean <- base_inputs$expense_ratios[[category]]$period_4
+      
+      # Simulate with correlation
+      simulated_values <- simulate_converging_ratio_with_correlation(
+        initial_mean = initial_mean,
+        target_mean = target_mean,
+        initial_sd = config$initial_sds[i],
+        target_sd = config$target_sds[i],
+        correlated_draws = scenario_draws[1:3, col_idx]
+      )
+      
+      results[[category]] <- as.list(simulated_values)
+      names(results[[category]]) <- paste0("period_", 1:4)
+    }
+    
+    return(results)
+    
+  } else if (config$simulation_type == "converging_ratio_beta") {
+    
+    results <- list()
+    
+    for (i in seq_along(config$categories)) {
+      category <- config$categories[i]
+      
+      # Get base values for this category
+      base_mean <- base_inputs$working_capital_ratios[[category]]$period_1
+      
+      # Simulate with correlation (using separate WC correlation matrix)
+      simulated_values <- simulate_converging_ratio_with_correlation(
+        initial_mean = base_mean,
+        target_mean = base_mean,  # WC ratios stay constant over time
+        initial_sd = config$base_sds[i] * config$convergence_factors[i],
+        target_sd = config$base_sds[i] * 0.1,
+        correlated_draws = scenario_draws_wc[1:3, i],
+        shape_param = config$shape_params[i]
+      )
+      
+      results[[category]] <- as.list(simulated_values[c(1:3, 6)])  # Select relevant periods
+      names(results[[category]]) <- paste0("period_", 1:4)
+    }
+    
+    return(results)
+  }
+}
