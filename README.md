@@ -17,7 +17,6 @@ This repository contains R code for building a comprehensive financial model and
 
 ### Monte Carlo Simulation
 - **Stochastic Modeling**: Correlated random variables for key assumptions
-- **Scenario Analysis**: 100+ simulation scenarios with correlation matrices
 - **Shock Modeling**: Poisson-distributed external shocks (policy changes, competition, technology)
 - **Risk Assessment**: Statistical distribution of valuation outcomes
 
